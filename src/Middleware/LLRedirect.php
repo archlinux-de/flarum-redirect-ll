@@ -67,7 +67,12 @@ class LLRedirect implements MiddlewareInterface
                         $discussion = $this->discussionRepository->findOrFail(intval($query['thread']));
                         $params['id'] = $discussion->id;
                         if (isset($query['post'])) {
-                            $params['near'] = intval($query['post']);
+                            $postIndex = intval($query['post']);
+                            if ($postIndex === -1) {
+                                $params['near'] = $discussion->last_post_number;
+                            } else {
+                                $params['near'] = $postIndex + 1;
+                            }
                         }
                         $path = $this->urlGenerator->to('forum')
                             ->route('discussion', $params);
