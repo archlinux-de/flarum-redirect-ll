@@ -111,7 +111,6 @@ class LLRedirect implements MiddlewareInterface
             case 'GetRecent':
                 // Return a 404 as non HTML responses
                 return new Response(status: 404);
-                break;
         }
 
         return new RedirectResponse($path, $status);

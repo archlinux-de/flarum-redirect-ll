@@ -1,5 +1,7 @@
 <?php
 
+namespace ArchLinux\RedirectLL;
+
 use ArchLinux\RedirectLL\Middleware\LLRedirect;
 use Flarum\Extend;
 use Flarum\Http\Middleware\ResolveRoute;
