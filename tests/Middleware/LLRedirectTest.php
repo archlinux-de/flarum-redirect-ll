@@ -67,7 +67,7 @@ class LLRedirectTest extends TestCase
         $llRedirect = new LLRedirect($urlGeneretor, $tagRepository, $userRepository, $discussionRepository);
         $response = $llRedirect->process($request, $requestHandler);
 
-        $this->assertEquals(301,$response->getStatusCode());
+        $this->assertEquals(301, $response->getStatusCode());
         $this->assertEquals('/new-url', $response->getHeader('Location')[0]);
     }
 }

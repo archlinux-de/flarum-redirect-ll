@@ -35,9 +35,12 @@ class LLRedirect implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        if ($request->getUri()->getPath() === '/'
-            && in_array($request->getMethod(), ['GET', 'HEAD'])
-            && $request->getUri()->getQuery()) {
+        if (
+            $request->getUri()->getPath() === '/' && in_array(
+                $request->getMethod(),
+                ['GET', 'HEAD']
+            ) && $request->getUri()->getQuery()
+        ) {
             return $this->handleRequest($request, $handler);
         }
 
