@@ -59,7 +59,6 @@ class LLRedirect implements MiddlewareInterface
             return $handler->handle($request);
         }
 
-        $path = $this->urlGenerator->to('forum')->route('default');
         $status = 302;
 
         switch ($query['page']) {
@@ -114,6 +113,12 @@ class LLRedirect implements MiddlewareInterface
             case 'GetRecent':
                 // Return a 404 as non HTML responses
                 return new Response(status: 404);
+            default:
+                $path = $this->urlGenerator->to('forum')->route('default');
+        }
+
+        if (!isset($path)) {
+            return new Response(status: 404);
         }
 
         return new RedirectResponse($path, $status);

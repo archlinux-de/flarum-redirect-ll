@@ -9,7 +9,8 @@
     },
     "autoload": {
         "psr-4": {
-            "ArchLinux\\RedirectLL\\": "src/"
+            "ArchLinux\\RedirectLL\\": "src/",
+            "ArchLinux\\RedirectLL\\Test\\": "tests/"
         }
     },
     "extra": {
