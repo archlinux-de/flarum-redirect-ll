@@ -5,5 +5,5 @@ This [Flarum](https://flarum.org/) extension is specific to [forum.archlinux.de]
 ### Installation
 
 ```sh
-composer require archlinux-de/flarum-theme-archlinux
+composer require archlinux-de/flarum-redirect-ll
 ```
