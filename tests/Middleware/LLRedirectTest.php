@@ -102,10 +102,14 @@ class LLRedirectTest extends TestCase
     public function testRedirectPostings(): void
     {
         $this->routeCollectionUrlGenerator
-            ->expects($this->atLeastOnce())
+            ->expects($this->exactly(2))
             ->method('route')
-            ->with('discussion', ['id' => 123, 'near' => 3])
-            ->willReturn('/new-url');
+            ->will(
+                $this->returnValueMap([
+                                          ['default', '/'],
+                                          ['discussion', ['id' => 123, 'near' => 3], '/new-url']
+                                      ])
+            );
 
         $this->requestUri
             ->expects($this->atLeastOnce())
@@ -119,10 +123,14 @@ class LLRedirectTest extends TestCase
     public function testRedirectThreads(): void
     {
         $this->routeCollectionUrlGenerator
-            ->expects($this->atLeastOnce())
+            ->expects($this->exactly(2))
             ->method('route')
-            ->with('tag', ['slug' => 'foo-tag'])
-            ->willReturn('/new-url');
+            ->will(
+                $this->returnValueMap([
+                                          ['default', '/'],
+                                          ['tag', ['slug' => 'foo-tag'], '/new-url']
+                                      ])
+            );
 
         $this->requestUri
             ->expects($this->atLeastOnce())
@@ -136,10 +144,14 @@ class LLRedirectTest extends TestCase
     public function testRedirectUsers(): void
     {
         $this->routeCollectionUrlGenerator
-            ->expects($this->atLeastOnce())
+            ->expects($this->exactly(2))
             ->method('route')
-            ->with('user', ['username' => 'foo-username'])
-            ->willReturn('/new-url');
+            ->will(
+                $this->returnValueMap([
+                                          ['default', '/'],
+                                          ['user', ['username' => 'foo-username'], '/new-url']
+                                      ])
+            );
 
         $this->requestUri
             ->expects($this->atLeastOnce())
@@ -153,7 +165,7 @@ class LLRedirectTest extends TestCase
     public function testRedirectFallback(): void
     {
         $this->routeCollectionUrlGenerator
-            ->expects($this->atLeastOnce())
+            ->expects($this->exactly(1))
             ->method('route')
             ->with('default')
             ->willReturn('/new-url');

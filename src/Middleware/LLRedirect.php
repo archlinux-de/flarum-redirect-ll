@@ -59,6 +59,7 @@ class LLRedirect implements MiddlewareInterface
             return $handler->handle($request);
         }
 
+        $path = $this->urlGenerator->to('forum')->route('default');
         $status = 302;
 
         switch ($query['page']) {
@@ -80,6 +81,7 @@ class LLRedirect implements MiddlewareInterface
                             ->route('discussion', $params);
                         $status = 301;
                     } catch (ModelNotFoundException $e) {
+                        $status = 404;
                     }
                 }
                 break;
@@ -92,6 +94,7 @@ class LLRedirect implements MiddlewareInterface
                             ->route('user', ['username' => $user->username]);
                         $status = 301;
                     } catch (ModelNotFoundException $e) {
+                        $status = 404;
                     }
                 }
                 break;
@@ -103,6 +106,7 @@ class LLRedirect implements MiddlewareInterface
                             ->route('tag', ['slug' => $tag->slug]);
                         $status = 301;
                     } catch (ModelNotFoundException $e) {
+                        // Implicitly redirect to forum index
                     }
                 }
                 break;
@@ -111,13 +115,11 @@ class LLRedirect implements MiddlewareInterface
             case 'GetAvatar':
             case 'GetImage':
             case 'GetRecent':
-                // Return a 404 as non HTML responses
-                return new Response(status: 404);
-            default:
-                $path = $this->urlGenerator->to('forum')->route('default');
+                $status = 404;
+                break;
         }
 
-        if (!isset($path)) {
+        if ($status === 404) {
             return new Response(status: 404);
         }
 
