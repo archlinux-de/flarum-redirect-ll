@@ -3,8 +3,12 @@
 namespace ArchLinux\RedirectLL\Test\Middleware;
 
 use ArchLinux\RedirectLL\Middleware\LLRedirect;
+use Flarum\Database\AbstractModel;
+use Flarum\Discussion\Discussion;
 use Flarum\Discussion\DiscussionRepository;
+use Flarum\Discussion\IdWithTransliteratedSlugDriver;
 use Flarum\Http\RouteCollectionUrlGenerator;
+use Flarum\Http\SlugManager;
 use Flarum\Http\UrlGenerator;
 use Flarum\Tags\TagRepository;
 use Flarum\User\UserRepository;
@@ -41,13 +45,15 @@ class LLRedirectTest extends TestCase
         $this->requestHandler = $this->createMock(RequestHandlerInterface::class);
         $this->requestUri = $this->createMock(UriInterface::class);
         $this->routeCollectionUrlGenerator = $this->createMock(RouteCollectionUrlGenerator::class);
+        $slugManager = $this->createMock(SlugManager::class);
 
         $discussionRepository
             ->expects($this->any())
             ->method('findOrFail')
             ->willReturn(
-                new class {
+                new class extends AbstractModel {
                     public int $id = 123;
+                    public string $slug = 'foo';
                 }
             );
 
@@ -89,7 +95,19 @@ class LLRedirectTest extends TestCase
             ->method('getUri')
             ->willReturn($this->requestUri);
 
-        $this->llRedirect = new LLRedirect($urlGenerator, $tagRepository, $userRepository, $discussionRepository);
+        $slugManager
+            ->expects($this->any())
+            ->method('forResource')
+            ->with(Discussion::class)
+            ->willReturn(new IdWithTransliteratedSlugDriver($discussionRepository));
+
+        $this->llRedirect = new LLRedirect(
+            $urlGenerator,
+            $tagRepository,
+            $userRepository,
+            $discussionRepository,
+            $slugManager
+        );
     }
 
     private function assertRedirect(ResponseInterface $response, string $expectedUrl, int $code = 301): void
@@ -107,7 +125,7 @@ class LLRedirectTest extends TestCase
             ->will(
                 $this->returnValueMap([
                                           ['default', '/'],
-                                          ['discussion', ['id' => 123, 'near' => 3], '/new-url']
+                                          ['discussion', ['id' => '123-foo', 'near' => 3], '/new-url']
                                       ])
             );
 

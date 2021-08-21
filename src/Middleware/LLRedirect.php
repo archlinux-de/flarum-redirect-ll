@@ -2,7 +2,9 @@
 
 namespace ArchLinux\RedirectLL\Middleware;
 
+use Flarum\Discussion\Discussion;
 use Flarum\Discussion\DiscussionRepository;
+use Flarum\Http\SlugManager;
 use Flarum\Http\UrlGenerator;
 use Flarum\Tags\TagRepository;
 use Flarum\User\UserRepository;
@@ -20,17 +22,20 @@ class LLRedirect implements MiddlewareInterface
     private DiscussionRepository $discussionRepository;
     private TagRepository $tagRepository;
     private UserRepository $userRepository;
+    private SlugManager $slugManager;
 
     public function __construct(
         UrlGenerator $urlGenerator,
         TagRepository $tagRepository,
         UserRepository $userRepository,
-        DiscussionRepository $discussionRepository
+        DiscussionRepository $discussionRepository,
+        SlugManager $slugManager
     ) {
         $this->urlGenerator = $urlGenerator;
         $this->tagRepository = $tagRepository;
         $this->userRepository = $userRepository;
         $this->discussionRepository = $discussionRepository;
+        $this->slugManager = $slugManager;
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
@@ -68,7 +73,7 @@ class LLRedirect implements MiddlewareInterface
                     try {
                         $params = [];
                         $discussion = $this->discussionRepository->findOrFail(intval($query['thread']));
-                        $params['id'] = $discussion->id;
+                        $params['id'] = $this->slugManager->forResource(Discussion::class)->toSlug($discussion);
                         if (isset($query['post'])) {
                             $postIndex = intval($query['post']);
                             if ($postIndex === -1) {
