@@ -55,6 +55,10 @@ class LLRedirect implements MiddlewareInterface
     private function handleRequest(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $queryString = $request->getUri()->getQuery();
+        // Fix requests that were urlencoded twice
+        if (preg_match('/%[0-9A-F]+/i', $queryString)) {
+            $queryString = urldecode($queryString);
+        }
         // Support ; parameter delimiter
         $queryString = str_replace(';', '&', $queryString);
         $query = [];

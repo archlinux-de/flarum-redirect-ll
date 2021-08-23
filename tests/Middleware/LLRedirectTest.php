@@ -138,6 +138,27 @@ class LLRedirectTest extends TestCase
         $this->assertRedirect($response, '/new-url');
     }
 
+    public function testRedirectPostingsDoubleEncoded(): void
+    {
+        $this->routeCollectionUrlGenerator
+            ->expects($this->exactly(2))
+            ->method('route')
+            ->will(
+                $this->returnValueMap([
+                                          ['default', '/'],
+                                          ['discussion', ['id' => '123-foo', 'near' => 3], '/new-url']
+                                      ])
+            );
+
+        $this->requestUri
+            ->expects($this->atLeastOnce())
+            ->method('getQuery')
+            ->willReturn(urlencode('page=Postings;thread=123;post=2'));
+
+        $response = $this->llRedirect->process($this->request, $this->requestHandler);
+        $this->assertRedirect($response, '/new-url');
+    }
+
     public function testRedirectThreads(): void
     {
         $this->routeCollectionUrlGenerator
