@@ -7,6 +7,7 @@ use Flarum\Discussion\DiscussionRepository;
 use Flarum\Http\SlugManager;
 use Flarum\Http\UrlGenerator;
 use Flarum\Tags\TagRepository;
+use Flarum\User\User;
 use Flarum\User\UserRepository;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Laminas\Diactoros\Response;
@@ -18,24 +19,13 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class LLRedirect implements MiddlewareInterface
 {
-    private UrlGenerator $urlGenerator;
-    private DiscussionRepository $discussionRepository;
-    private TagRepository $tagRepository;
-    private UserRepository $userRepository;
-    private SlugManager $slugManager;
-
     public function __construct(
-        UrlGenerator $urlGenerator,
-        TagRepository $tagRepository,
-        UserRepository $userRepository,
-        DiscussionRepository $discussionRepository,
-        SlugManager $slugManager
+        private UrlGenerator $urlGenerator,
+        private TagRepository $tagRepository,
+        private UserRepository $userRepository,
+        private DiscussionRepository $discussionRepository,
+        private SlugManager $slugManager
     ) {
-        $this->urlGenerator = $urlGenerator;
-        $this->tagRepository = $tagRepository;
-        $this->userRepository = $userRepository;
-        $this->discussionRepository = $discussionRepository;
-        $this->slugManager = $slugManager;
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
@@ -99,8 +89,10 @@ class LLRedirect implements MiddlewareInterface
                 if (isset($query['user'])) {
                     try {
                         $user = $this->userRepository->findOrFail(intval($query['user']));
-                        $path = $this->urlGenerator->to('forum')
-                            ->route('user', ['username' => $user->username]);
+                        $path = $this->urlGenerator->to('forum')->route(
+                            'user',
+                            ['username' => $this->slugManager->forResource(User::class)->toSlug($user)]
+                        );
                         $status = 301;
                     } catch (ModelNotFoundException $e) {
                         $status = 404;

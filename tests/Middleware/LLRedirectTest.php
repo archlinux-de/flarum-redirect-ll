@@ -11,6 +11,8 @@ use Flarum\Http\RouteCollectionUrlGenerator;
 use Flarum\Http\SlugManager;
 use Flarum\Http\UrlGenerator;
 use Flarum\Tags\TagRepository;
+use Flarum\User\User;
+use Flarum\User\UsernameSlugDriver;
 use Flarum\User\UserRepository;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -61,7 +63,7 @@ class LLRedirectTest extends TestCase
             ->expects($this->any())
             ->method('findOrFail')
             ->willReturn(
-                new class {
+                new class extends AbstractModel {
                     public string $slug = 'foo-tag';
                 }
             );
@@ -70,7 +72,7 @@ class LLRedirectTest extends TestCase
             ->expects($this->any())
             ->method('findOrFail')
             ->willReturn(
-                new class {
+                new class extends AbstractModel {
                     public string $username = 'foo-username';
                 }
             );
@@ -98,8 +100,10 @@ class LLRedirectTest extends TestCase
         $slugManager
             ->expects($this->any())
             ->method('forResource')
-            ->with(Discussion::class)
-            ->willReturn(new IdWithTransliteratedSlugDriver($discussionRepository));
+            ->willReturnMap([
+                                [Discussion::class, new IdWithTransliteratedSlugDriver($discussionRepository)],
+                                [User::class, new UsernameSlugDriver($userRepository)]
+                            ]);
 
         $this->llRedirect = new LLRedirect(
             $urlGenerator,
