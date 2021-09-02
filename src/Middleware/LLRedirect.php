@@ -62,6 +62,7 @@ class LLRedirect implements MiddlewareInterface
         $status = 302;
 
         switch ($query['page']) {
+            case 'NewPost':
             case 'Postings':
                 if (isset($query['thread'])) {
                     try {
