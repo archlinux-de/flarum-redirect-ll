@@ -20,11 +20,11 @@ use Psr\Http\Server\RequestHandlerInterface;
 class LLRedirect implements MiddlewareInterface
 {
     public function __construct(
-        private UrlGenerator $urlGenerator,
-        private TagRepository $tagRepository,
-        private UserRepository $userRepository,
-        private DiscussionRepository $discussionRepository,
-        private SlugManager $slugManager
+        private readonly UrlGenerator $urlGenerator,
+        private readonly TagRepository $tagRepository,
+        private readonly UserRepository $userRepository,
+        private readonly DiscussionRepository $discussionRepository,
+        private readonly SlugManager $slugManager
     ) {
     }
 
@@ -64,17 +64,17 @@ class LLRedirect implements MiddlewareInterface
         switch ($query['page']) {
             case 'NewPost':
             case 'Postings':
-                if (isset($query['thread'])) {
+                if (isset($query['thread']) && is_string($query['thread'])) {
                     try {
                         $params = [];
                         $discussion = $this->discussionRepository->findOrFail(intval($query['thread']));
                         $params['id'] = $this->slugManager->forResource(Discussion::class)->toSlug($discussion);
-                        if (isset($query['post'])) {
+                        if (isset($query['post']) && is_string($query['post'])) {
                             $postIndex = intval($query['post']);
                             if ($postIndex === -1) {
-                                $params['near'] = $discussion->last_post_number;
+                                $params['near'] = (string) $discussion->last_post_number;
                             } else {
-                                $params['near'] = $postIndex + 1;
+                                $params['near'] = (string) ($postIndex + 1);
                             }
                         }
                         $path = $this->urlGenerator->to('forum')
@@ -87,7 +87,7 @@ class LLRedirect implements MiddlewareInterface
                 break;
             case 'ShowUser':
             case 'UserRecent':
-                if (isset($query['user'])) {
+                if (isset($query['user']) && is_string($query['user'])) {
                     try {
                         $user = $this->userRepository->findOrFail(intval($query['user']));
                         $path = $this->urlGenerator->to('forum')->route(
@@ -101,7 +101,7 @@ class LLRedirect implements MiddlewareInterface
                 }
                 break;
             case 'Threads':
-                if (isset($query['forum'])) {
+                if (isset($query['forum']) && is_string($query['forum'])) {
                     try {
                         $tag = $this->tagRepository->findOrFail(intval($query['forum']));
                         $path = $this->urlGenerator->to('forum')

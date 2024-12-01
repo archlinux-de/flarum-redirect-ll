@@ -23,19 +23,15 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class LLRedirectTest extends TestCase
 {
-    /** @var RouteCollectionUrlGenerator|MockObject */
-    private RouteCollectionUrlGenerator|MockObject $routeCollectionUrlGenerator;
+    private RouteCollectionUrlGenerator&MockObject $routeCollectionUrlGenerator;
 
-    /** @var UriInterface|MockObject */
-    private UriInterface|MockObject $requestUri;
+    private UriInterface&MockObject $requestUri;
 
     private LLRedirect $llRedirect;
 
-    /** @var ServerRequestInterface|MockObject */
-    private ServerRequestInterface|MockObject $request;
+    private ServerRequestInterface&MockObject $request;
 
-    /** @var RequestHandlerInterface|MockObject */
-    private RequestHandlerInterface|MockObject $requestHandler;
+    private RequestHandlerInterface&MockObject $requestHandler;
 
     public function setUp(): void
     {
@@ -101,9 +97,9 @@ class LLRedirectTest extends TestCase
             ->expects($this->any())
             ->method('forResource')
             ->willReturnMap([
-                                [Discussion::class, new IdWithTransliteratedSlugDriver($discussionRepository)],
-                                [User::class, new UsernameSlugDriver($userRepository)]
-                            ]);
+                [Discussion::class, new IdWithTransliteratedSlugDriver($discussionRepository)],
+                [User::class, new UsernameSlugDriver($userRepository)]
+            ]);
 
         $this->llRedirect = new LLRedirect(
             $urlGenerator,
@@ -114,24 +110,15 @@ class LLRedirectTest extends TestCase
         );
     }
 
-    private function assertRedirect(ResponseInterface $response, string $expectedUrl, int $code = 301): void
-    {
-        $this->assertEquals($code, $response->getStatusCode());
-        $this->assertCount(1, $response->getHeader('Location'));
-        $this->assertEquals($expectedUrl, $response->getHeader('Location')[0]);
-    }
-
     public function testRedirectPostings(): void
     {
         $this->routeCollectionUrlGenerator
             ->expects($this->exactly(2))
             ->method('route')
-            ->will(
-                $this->returnValueMap([
-                                          ['default', '/'],
-                                          ['discussion', ['id' => '123-foo', 'near' => 3], '/new-url']
-                                      ])
-            );
+            ->willReturnMap([
+                ['default', '/'],
+                ['discussion', ['id' => '123-foo', 'near' => '3'], '/new-url']
+            ]);
 
         $this->requestUri
             ->expects($this->atLeastOnce())
@@ -142,17 +129,22 @@ class LLRedirectTest extends TestCase
         $this->assertRedirect($response, '/new-url');
     }
 
+    private function assertRedirect(ResponseInterface $response, string $expectedUrl, int $code = 301): void
+    {
+        $this->assertEquals($code, $response->getStatusCode());
+        $this->assertCount(1, $response->getHeader('Location'));
+        $this->assertEquals($expectedUrl, $response->getHeader('Location')[0]);
+    }
+
     public function testRedirectPostingsDoubleEncoded(): void
     {
         $this->routeCollectionUrlGenerator
             ->expects($this->exactly(2))
             ->method('route')
-            ->will(
-                $this->returnValueMap([
-                                          ['default', '/'],
-                                          ['discussion', ['id' => '123-foo', 'near' => 3], '/new-url']
-                                      ])
-            );
+            ->willReturnMap([
+                ['default', '/'],
+                ['discussion', ['id' => '123-foo', 'near' => '3'], '/new-url']
+            ]);
 
         $this->requestUri
             ->expects($this->atLeastOnce())
@@ -168,12 +160,10 @@ class LLRedirectTest extends TestCase
         $this->routeCollectionUrlGenerator
             ->expects($this->exactly(2))
             ->method('route')
-            ->will(
-                $this->returnValueMap([
-                                          ['default', '/'],
-                                          ['tag', ['slug' => 'foo-tag'], '/new-url']
-                                      ])
-            );
+            ->willReturnMap([
+                ['default', '/'],
+                ['tag', ['slug' => 'foo-tag'], '/new-url']
+            ]);
 
         $this->requestUri
             ->expects($this->atLeastOnce())
@@ -189,12 +179,10 @@ class LLRedirectTest extends TestCase
         $this->routeCollectionUrlGenerator
             ->expects($this->exactly(2))
             ->method('route')
-            ->will(
-                $this->returnValueMap([
-                                          ['default', '/'],
-                                          ['user', ['username' => 'foo-username'], '/new-url']
-                                      ])
-            );
+            ->willReturnMap([
+                ['default', '/'],
+                ['user', ['username' => 'foo-username'], '/new-url']
+            ]);
 
         $this->requestUri
             ->expects($this->atLeastOnce())
