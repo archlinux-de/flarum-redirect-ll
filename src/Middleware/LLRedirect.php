@@ -19,6 +19,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class LLRedirect implements MiddlewareInterface
 {
+    /** @param UserRepository<User> $userRepository */
     public function __construct(
         private readonly UrlGenerator $urlGenerator,
         private readonly TagRepository $tagRepository,

@@ -3,13 +3,13 @@
 namespace ArchLinux\RedirectLL\Test\Middleware;
 
 use ArchLinux\RedirectLL\Middleware\LLRedirect;
-use Flarum\Database\AbstractModel;
 use Flarum\Discussion\Discussion;
 use Flarum\Discussion\DiscussionRepository;
 use Flarum\Discussion\IdWithTransliteratedSlugDriver;
 use Flarum\Http\RouteCollectionUrlGenerator;
 use Flarum\Http\SlugManager;
 use Flarum\Http\UrlGenerator;
+use Flarum\Tags\Tag;
 use Flarum\Tags\TagRepository;
 use Flarum\User\User;
 use Flarum\User\UsernameSlugDriver;
@@ -49,28 +49,21 @@ class LLRedirectTest extends TestCase
             ->expects($this->any())
             ->method('findOrFail')
             ->willReturn(
-                new class extends AbstractModel {
-                    public int $id = 123;
-                    public string $slug = 'foo';
-                }
+                (new Discussion())->forceFill(['id' => 123, 'slug' => 'foo'])
             );
 
         $tagRepository
             ->expects($this->any())
             ->method('findOrFail')
             ->willReturn(
-                new class extends AbstractModel {
-                    public string $slug = 'foo-tag';
-                }
+                (new Tag())->forceFill(['slug' => 'foo-tag'])
             );
 
         $userRepository
             ->expects($this->any())
             ->method('findOrFail')
             ->willReturn(
-                new class extends AbstractModel {
-                    public string $username = 'foo-username';
-                }
+                (new User())->forceFill(['username' => 'foo-username'])
             );
 
         $urlGenerator
